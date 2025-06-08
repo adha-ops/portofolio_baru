@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portofolio Saya</title>
+  <!-- Hapus tag style dan ganti dengan ini -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <nav>
+    <ul>
+      <li><a href="#">Beranda</a></li>
+      <li><a href="#">Tentang Saya</a></li>
+      <li><a href="#">Portofolio</a></li>
+      <li>
+        <a href="#">Lainnya</a>
+        <ul>
+          <li><a href="https://instagram.com" target="_blank">Instagram</a></li>
+          <li><a href="https://facebook.com" target="_blank">Facebook</a></li>
+          <li><a href="https://tiktok.com" target="_blank">TikTok</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<section class="main-content">
+  <img src="assets/Foto utama.png" alt="Foto Adha" />
+  <div>
+    <h2>Halo, Saya Mohamad Adha Khoirul Ahmada</h2>
+    <p>
+      Saya adalah seorang mahasiswa yang sedang menempuh pendidikan di Universitas Sunan Giri Bojonegoro.
+      Saya memiliki minat dalam bidang teknologi komunikasi. Saat ini saya sedang fokus di bidang web Developer dan aktif
+      membuat konten untuk media sosial.
+    </p>
+  </div>
+</section>
+
+<section class="about">
+  <div>
+    <h2>Tentang Saya</h2>
+    <p>
+      Saya Adha, mahasiswa Teknik Informatika yang berkomitmen mengembangkan keterampilan
+      di bidang teknologi dan pemrograman. Berbekal pemikiran analitis dan kemampuan adaptasi,
+      saya siap menghadapi tantangan di dunia digital yang terus berkembang.
+    </p>
+  </div>
+  <img src="assets/foto sekunder.jpg" alt="Foto Lain Adha" />
+</section>
+
+<section>
+  <h2>Portofolio</h2>
+
+  <form id="formTambah" style="margin-bottom: 20px;">
+    <input type="text" id="nama" placeholder="Nama Kegiatan" required />
+    <input type="text" id="waktu" placeholder="Waktu" required />
+    <input type="text" id="bukti" placeholder="Link Bukti" required />
+    <button type="submit">Tambah</button>
+  </form>
+
+  <table border="1" cellpadding="10">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Kegiatan</th>
+        <th>Waktu</th>
+        <th>Bukti</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="tabelPortofolio">
+      <!-- Data akan diisi oleh JavaScript -->
+    </tbody>
+  </table>
+
+  <form id="formEdit" style="margin-top: 20px; display: none;">
+    <input type="hidden" id="editId" />
+    <input type="text" id="editNama" required />
+    <input type="text" id="editWaktu" required />
+    <input type="text" id="editBukti" required />
+    <button type="submit">Simpan Perubahan</button>
+    <button type="button" onclick="batalEdit()">Batal</button>
+  </form>
+</section>
+
+<section class="opini-berita">
+  <h2>Opini & Berita</h2>
+  <!-- Tambahkan card berita di sini -->
+</section>
+
+<section class="kontak">
+  <h2>Kontak Saya</h2>
+  <div class="kontak-container">
+    <form class="form-kontak">
+      <label for="namaKontak">Nama</label>
+      <input type="text" id="namaKontak" required />
+
+      <label for="subjek">Subjek</label>
+      <input type="text" id="subjek" required />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" required />
+
+      <label for="pesan">Pesan</label>
+      <textarea id="pesan" rows="5" required></textarea>
+
+      <button type="submit">Kirim</button>
+    </form>
+
+    <div class="maps">
+      <iframe src="https://www.google.com/maps/embed?...YOUR_MAP_LINK..."
+              width="800" height="600" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<footer>&copy; 2025 Mohamad Adha Khoirul Ahmada | All rights reserved</footer>
+
+<script>
+  // Inisialisasi data jika belum ada
+  if (!localStorage.getItem('portofolio')) {
+    localStorage.setItem('portofolio', JSON.stringify([]));
+  }
+
+  // Fungsi untuk memuat data dari localStorage
+  function muatData() {
+    const data = JSON.parse(localStorage.getItem('portofolio'));
+    const tabel = document.getElementById('tabelPortofolio');
+    tabel.innerHTML = '';
+
+    data.forEach((item, index) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${escapeHtml(item.nama)}</td>
+        <td>${escapeHtml(item.waktu)}</td>
+        <td><a href="${escapeHtml(item.bukti)}" target="_blank">Lihat</a></td>
+        <td>
+          <a href="#" onclick="hapusData(${item.id})" class="hapus">Hapus</a> |
+          <a href="#" onclick="mulaiEdit(${item.id})" class="edit">Edit</a>
+        </td>
+      `;
+      tabel.appendChild(row);
+    });
+  }
+
+  // Fungsi untuk menghindari XSS
+  function escapeHtml(unsafe) {
+    return unsafe
+      .toString()
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Fungsi untuk menambah data
+  document.getElementById('formTambah').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const data = JSON.parse(localStorage.getItem('portofolio'));
+    const newItem = {
+      id: Date.now(),
+      nama: document.getElementById('nama').value,
+      waktu: document.getElementById('waktu').value,
+      bukti: document.getElementById('bukti').value
+    };
+    
+    data.push(newItem);
+    localStorage.setItem('portofolio', JSON.stringify(data));
+    
+    // Reset form
+    this.reset();
+    muatData();
+  });
+
+  // Fungsi untuk menghapus data
+  function hapusData(id) {
+    if (confirm('Hapus data ini?')) {
+      let data = JSON.parse(localStorage.getItem('portofolio'));
+      data = data.filter(item => item.id !== id);
+      localStorage.setItem('portofolio', JSON.stringify(data));
+      muatData();
+    }
+  }
+
+  // Fungsi untuk memulai edit
+  function mulaiEdit(id) {
+    const data = JSON.parse(localStorage.getItem('portofolio'));
+    const item = data.find(item => item.id === id);
+    
+    if (item) {
+      document.getElementById('editId').value = item.id;
+      document.getElementById('editNama').value = item.nama;
+      document.getElementById('editWaktu').value = item.waktu;
+      document.getElementById('editBukti').value = item.bukti;
+      
+      document.getElementById('formEdit').style.display = 'block';
+      document.getElementById('formTambah').style.display = 'none';
+    }
+  }
+
+  // Fungsi untuk batal edit
+  function batalEdit() {
+    document.getElementById('formEdit').reset();
+    document.getElementById('formEdit').style.display = 'none';
+    document.getElementById('formTambah').style.display = 'block';
+  }
+
+  // Fungsi untuk menyimpan edit
+  document.getElementById('formEdit').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const id = parseInt(document.getElementById('editId').value);
+    let data = JSON.parse(localStorage.getItem('portofolio'));
+    
+    const index = data.findIndex(item => item.id === id);
+    if (index !== -1) {
+      data[index] = {
+        id: id,
+        nama: document.getElementById('editNama').value,
+        waktu: document.getElementById('editWaktu').value,
+        bukti: document.getElementById('editBukti').value
+      };
+      
+      localStorage.setItem('portofolio', JSON.stringify(data));
+      muatData();
+      batalEdit();
+    }
+  });
+
+  // Muat data saat halaman dimuat
+  window.onload = muatData;
+</script>
+</body>
+</html>
